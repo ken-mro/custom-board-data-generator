@@ -1,0 +1,6 @@
+{
+  "name": "custom-board-data-generator",
+  "description": "A web app to easily create and edit data for custom board.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
