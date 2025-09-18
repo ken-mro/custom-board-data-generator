@@ -25,7 +25,7 @@ const base64ToBuffer = (base64: string): ArrayBuffer => {
 // This key is used for the outer encryption layer.
 // In a real application, this should be managed more securely (e.g., via environment variables),
 // but for this context, a hardcoded constant is sufficient.
-const encryptionKey = import.meta.env.VITE_ENCRYPTION_KEY;
+const encryptionKey = import.meta.env.ENCRYPTION_KEY;
 
 // Internal function to derive the app's encryption key
 const getEncryptionKey = async (salt: Uint8Array): Promise<CryptoKey> => {
