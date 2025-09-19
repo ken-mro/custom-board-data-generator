@@ -41,18 +41,18 @@ const App: React.FC = () => {
         height: Number(jsonData.height) || 0,
         variables: variables,
         locations: (Array.isArray(jsonData.locations) ? jsonData.locations : []).map((loc: any = {}) => {
-            const newLoc: Location = {
-                ...variableDefaults,
-                ...loc,
-                id: crypto.randomUUID(),
-                code: loc.code || '',
-                title: loc.title || '',
-                subtitle: loc.subtitle || '',
-                group: loc.group || '',
-                latitude: Number(loc.latitude) || 0,
-                longitude: Number(loc.longitude) || 0,
-            };
-            return newLoc;
+          const newLoc: Location = {
+            ...variableDefaults,
+            ...loc,
+            id: crypto.randomUUID(),
+            code: loc.code || '',
+            title: loc.title || '',
+            subtitle: loc.subtitle || '',
+            group: loc.group || '',
+            latitude: Number(loc.latitude) || 0,
+            longitude: Number(loc.longitude) || 0,
+          };
+          return newLoc;
         }),
       };
       setData(processedData);
@@ -86,49 +86,67 @@ const App: React.FC = () => {
         }
       };
       reader.onerror = () => {
-          console.error("Failed to read file:", reader.error);
-          alert("Error: Could not read the selected file.");
+        console.error("Failed to read file:", reader.error);
+        alert("Error: Could not read the selected file.");
       }
       reader.readAsText(file);
     } else {
-        alert("Unsupported file type. Please upload a .json or .json.encrypted file.");
+      alert("Unsupported file type. Please upload a .json or .json.encrypted file.");
     }
   };
 
 
-  const handleDecryptAndLoad = async (password: string) => {
+  const handleDecrypt = async (password: string) => {
     if (!fileToDecrypt) return;
 
     setIsDecrypting(true);
     setDecryptionError(null);
     try {
-        const fileContent = await fileToDecrypt.text();
-        const encryptedPayload: EncryptedData = JSON.parse(fileContent);
+      const fileContent = await fileToDecrypt.text();
+      const encryptedFileData = JSON.parse(fileContent);
 
-        if (!encryptedPayload.salt || !encryptedPayload.iv || !encryptedPayload.ciphertext) {
-            throw new Error("Invalid encrypted file format.");
+      // Extract password hash if it exists
+      const passwordHash = encryptedFileData.passwordHash;
+      const encryptedPayload: EncryptedData = {
+        salt: encryptedFileData.salt,
+        iv: encryptedFileData.iv,
+        ciphertext: encryptedFileData.ciphertext
+      };
+
+      if (!encryptedPayload.salt || !encryptedPayload.iv || !encryptedPayload.ciphertext) {
+        throw new Error("Invalid encrypted file format.");
+      }
+
+      // Make API call to decrypt data
+      const response = await fetch('/api/decrypt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          encryptedData: encryptedPayload,
+          password: password || undefined,
+          passwordHash: passwordHash || undefined
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Invalid password provided.");
         }
+        throw new Error(`Decryption failed: ${response.statusText}`);
+      }
 
-        const decryptedJson = await decryptWithAppSecret(encryptedPayload);
-        const loadedData = JSON.parse(decryptedJson);
+      const result = await response.json();
+      const loadedData = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
 
-        // If the decrypted data has a password, verify it.
-        if (loadedData.password && typeof loadedData.password === 'string') {
-            const isPasswordCorrect = await verifyUserPassword(password, loadedData.password);
-            if (!isPasswordCorrect) {
-                throw new Error("Invalid user password provided.");
-            }
-            // Password is correct, remove it before loading into state
-            delete loadedData.password;
-        }
-        
-        loadDataIntoState(loadedData);
-        setFileToDecrypt(null); // Success, close modal
+      loadDataIntoState(loadedData);
+      setFileToDecrypt(null); // Success, close modal
     } catch (err) {
-        console.error("Decryption or loading failed:", err);
-        setDecryptionError("Decryption failed. Invalid password or corrupted file.");
+      console.error("Decryption or loading failed:", err);
+      setDecryptionError("Decryption failed. Invalid password or corrupted file.");
     } finally {
-        setIsDecrypting(false);
+      setIsDecrypting(false);
     }
   };
 
@@ -178,7 +196,7 @@ const App: React.FC = () => {
       if (!prev) return null;
       return {
         ...prev,
-        locations: prev.locations.map(loc => 
+        locations: prev.locations.map(loc =>
           loc.id === id ? { ...loc, [field]: value } : loc
         )
       };
@@ -230,14 +248,14 @@ const App: React.FC = () => {
       <Header onFileSelect={handleFileSelect} />
       <main className="container mx-auto px-4 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          
+
           {/* Left Column: Forms */}
           <div className="space-y-8">
-            <MetadataForm 
-              data={{ name: data.name, url: data.url, width: data.width, height: data.height }} 
-              onChange={handleMetadataChange} 
+            <MetadataForm
+              data={{ name: data.name, url: data.url, width: data.width, height: data.height }}
+              onChange={handleMetadataChange}
             />
-            <VariablesForm 
+            <VariablesForm
               variables={data.variables}
               onAdd={handleAddVariable}
               onDelete={handleDeleteVariable}
@@ -264,7 +282,7 @@ const App: React.FC = () => {
       <DecryptModal
         isOpen={!!fileToDecrypt}
         onClose={() => setFileToDecrypt(null)}
-        onSubmit={handleDecryptAndLoad}
+        onSubmit={handleDecrypt}
         isDecrypting={isDecrypting}
         error={decryptionError}
       />
