@@ -66,6 +66,8 @@ const decryptWithAppSecret = async (encryptedPayload) => {
  * Verifies a password against a known SHA-256 hash
  */
 const verifyUserPassword = async (password, hash) => {
+    if (!hash) return password === hash;
+
     const { webcrypto } = await import('crypto');
     const crypto = webcrypto;
 
@@ -109,13 +111,11 @@ export default async function handler(req, res) {
             return;
         }
 
-        // If password hash is provided, verify the password
-        if (passwordHash && password) {
-            const isValidPassword = await verifyUserPassword(password, passwordHash);
-            if (!isValidPassword) {
-                res.status(401).json({ error: 'Invalid password provided.' });
-                return;
-            }
+        // Verify the password
+        const isValidPassword = await verifyUserPassword(password, passwordHash);
+        if (!isValidPassword) {
+            res.status(401).json({ error: 'Invalid password provided.' });
+            return;
         }
 
         // Decrypt the data
