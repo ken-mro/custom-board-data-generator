@@ -1,132 +1,123 @@
-// --- Crypto Service Logic ---
+// --- Crypto Service Logic (Now using Vercel Functions for security) ---
 export interface EncryptedData {
     salt: string; // base64
     iv: string; // base64
     ciphertext: string; // base64
 }
 
-// Helper to convert ArrayBuffer to Base64 string
-const bufferToBase64 = (buffer: ArrayBuffer): string => {
-    return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(buffer))));
-};
-
-// Helper to convert Base64 string to ArrayBuffer
-const base64ToBuffer = (base64: string): ArrayBuffer => {
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
-};
-
-
-// This key is used for the outer encryption layer.
-// In a real application, this should be managed more securely (e.g., via environment variables),
-// but for this context, a hardcoded constant is sufficient.
-const encryptionKey = import.meta.env.VITE_ENCRYPTION_KEY;
-
-// Internal function to derive the app's encryption key
-const getEncryptionKey = async (salt: Uint8Array): Promise<CryptoKey> => {
-    const encoder = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        encoder.encode(encryptionKey),
-        { name: 'PBKDF2' },
-        false,
-        ['deriveKey']
-    );
-
-    return crypto.subtle.deriveKey(
-        {
-            name: 'PBKDF2',
-            salt: salt,
-            iterations: 100000,
-            hash: 'SHA-256',
-        },
-        keyMaterial,
-        { name: 'AES-GCM', length: 256 },
-        true,
-        ['encrypt', 'decrypt']
-    );
-};
+// API base URL - adjust for your deployment
+const API_BASE = process.env.NODE_ENV === 'production'
+    ? 'https:/https://custom-board-data-generator-izhdeyaa7-ken-mros-projects.vercel.app/api'  // Update with your actual domain
+    : '/api';
 
 /**
- * Encrypts data using the hardcoded application secret key.
+ * Encrypts data using server-side encryption via Vercel Functions.
  * @param plainText The string content to encrypt.
  * @returns An object containing the salt, iv, and ciphertext as base64 strings.
  */
 export const encryptWithAppSecret = async (plainText: string): Promise<EncryptedData> => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(plainText);
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
+    try {
+        const response = await fetch(`${API_BASE}/encrypt`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ data: plainText }),
+        });
 
-    const key = await getEncryptionKey(salt);
+        if (!response.ok) {
+            throw new Error(`Encryption failed: ${response.statusText}`);
+        }
 
-    const encryptedContent = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv: iv },
-        key,
-        data
-    );
-
-    return {
-        salt: bufferToBase64(salt),
-        iv: bufferToBase64(iv),
-        ciphertext: bufferToBase64(encryptedContent),
-    };
+        const result = await response.json();
+        return result.encrypted;
+    } catch (error) {
+        console.error('Encryption error:', error);
+        throw new Error('Failed to encrypt data. Please try again.');
+    }
 };
 
 /**
- * Decrypts data using the hardcoded application secret key.
+ * Decrypts data using server-side decryption via Vercel Functions.
  * @param encryptedPayload An object containing the salt, iv, and ciphertext.
  * @returns The decrypted string content.
  */
 export const decryptWithAppSecret = async (encryptedPayload: EncryptedData): Promise<string> => {
-    const salt = base64ToBuffer(encryptedPayload.salt);
-    const iv = base64ToBuffer(encryptedPayload.iv);
-    const data = base64ToBuffer(encryptedPayload.ciphertext);
+    try {
+        const response = await fetch(`${API_BASE}/decrypt`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ encryptedData: encryptedPayload }),
+        });
 
-    const key = await getEncryptionKey(new Uint8Array(salt));
+        if (!response.ok) {
+            throw new Error(`Decryption failed: ${response.statusText}`);
+        }
 
-    const decryptedContent = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv: new Uint8Array(iv) },
-        key,
-        data
-    );
-
-    const decoder = new TextDecoder();
-    return decoder.decode(decryptedContent);
+        const result = await response.json();
+        return typeof result.data === 'string' ? result.data : JSON.stringify(result.data);
+    } catch (error) {
+        console.error('Decryption error:', error);
+        throw new Error('Failed to decrypt data. Please check the file and try again.');
+    }
 };
 
-// --- Functions for user password hashing ---
-
-const bufferToHexString = (buffer: ArrayBuffer): string => {
-    return Array.from(new Uint8Array(buffer))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-};
+// --- Functions for user password hashing (now via API) ---
 
 /**
- * Hashes a user-provided password using SHA-256.
+ * Hashes a user-provided password using server-side SHA-256.
  * @param password The password to hash.
  * @returns A hex string representation of the hash.
  */
 export const hashUserPassword = async (password: string): Promise<string> => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    return bufferToHexString(hashBuffer);
+    try {
+        const response = await fetch(`${API_BASE}/encrypt`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ data: 'temp', password }), // We only need the password hash
+        });
+
+        if (!response.ok) {
+            throw new Error(`Password hashing failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result.passwordHash;
+    } catch (error) {
+        console.error('Password hashing error:', error);
+        throw new Error('Failed to hash password. Please try again.');
+    }
 };
 
 /**
- * Verifies a password against a known SHA-256 hash.
+ * Verifies a password against encrypted data that contains password protection.
  * @param password The password to verify.
- * @param hash The hex string hash to compare against.
- * @returns A boolean indicating if the password matches the hash.
+ * @param encryptedPayload The encrypted payload that may contain password hash.
+ * @param passwordHash The password hash to verify against.
+ * @returns A boolean indicating if the password matches.
  */
-export const verifyUserPassword = async (password: string, hash: string): Promise<boolean> => {
-    const newHash = await hashUserPassword(password);
-    return newHash === hash;
+export const verifyUserPassword = async (password: string, passwordHash: string): Promise<boolean> => {
+    try {
+        const response = await fetch(`${API_BASE}/decrypt`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                encryptedData: { salt: '', iv: '', ciphertext: '' }, // Dummy data
+                password,
+                passwordHash
+            }),
+        });
+
+        // If the response is successful, password is correct
+        return response.ok;
+    } catch (error) {
+        console.error('Password verification error:', error);
+        return false;
+    }
 };

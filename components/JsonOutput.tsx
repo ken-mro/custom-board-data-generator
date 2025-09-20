@@ -29,7 +29,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ isOpen, onClose, onSubmit
     setError('');
     onSubmit(password);
   };
-  
+
   const handleClose = () => {
     setPassword('');
     setError('');
@@ -73,13 +73,13 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ isOpen, onClose, onSubmit
               className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
               {isEncrypting ? (
-                 <>
+                <>
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Encrypting...
-                 </>
+                </>
               ) : 'Encrypt & Download'}
             </button>
           </div>
@@ -129,18 +129,31 @@ const JsonOutput: React.FC<{ data: CustomBoardData }> = ({ data }) => {
   const handleEncryptedDownload = async (password: string) => {
     setIsEncrypting(true);
     try {
-      let jsonToEncrypt = formattedJson;
+      // Make API call to encrypt data with optional password
+      const response = await fetch('/api/encrypt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: formattedJson,
+          password: password || undefined
+        }),
+      });
 
-      // If a password is provided, add its hash to the JSON data before encrypting.
-      if (password) {
-        const dataObject = JSON.parse(formattedJson);
-        dataObject.password = await hashUserPassword(password);
-        jsonToEncrypt = JSON.stringify(dataObject, null, 2);
+      if (!response.ok) {
+        throw new Error(`Encryption failed: ${response.statusText}`);
       }
-      
-      const encryptedPayload = await encryptWithAppSecret(jsonToEncrypt);
 
-      const blob = new Blob([JSON.stringify(encryptedPayload, null, 2)], { type: 'application/json' });
+      const result = await response.json();
+
+      // Create the final encrypted file structure
+      const encryptedFileData = {
+        ...result.encrypted,
+        ...(result.passwordHash ? { passwordHash: result.passwordHash } : {})
+      };
+
+      const blob = new Blob([JSON.stringify(encryptedFileData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -180,7 +193,7 @@ const JsonOutput: React.FC<{ data: CustomBoardData }> = ({ data }) => {
               <DownloadIcon className="w-4 h-4" />
               Download
             </button>
-             <button
+            <button
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-md transition-colors duration-200"
               title="Download Encrypted JSON"
@@ -196,7 +209,7 @@ const JsonOutput: React.FC<{ data: CustomBoardData }> = ({ data }) => {
           </pre>
         </div>
       </div>
-      <PasswordModal 
+      <PasswordModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleEncryptedDownload}
