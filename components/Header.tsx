@@ -10,9 +10,9 @@ const Header: React.FC<HeaderProps> = ({ onFileSelect }) => {
   return (
     <header className="py-8 text-center relative">
         <div className="container mx-auto px-4">
-            <h1 className="text-4xl font-bold text-slate-900">Custom Board JSON Generator</h1>
+            <h1 className="text-4xl font-bold text-slate-900">Custom Board Data Generator</h1>
             <p className="mt-2 text-lg text-slate-600">
-                Create and edit JSON data for Custom Board collections.
+                Create and edit data for Custom Board collections.
             </p>
         </div>
         <div className="absolute top-0 right-0 mt-8 mr-8">
