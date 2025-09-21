@@ -7,7 +7,6 @@ export interface Location {
   group: string;
   latitude: number;
   longitude: number; // Spelling from user's JSON example.
-  [key: string]: any; // Allow for dynamic properties
 }
 
 export interface CustomBoardData {
@@ -15,10 +14,9 @@ export interface CustomBoardData {
   url: string;
   width: number;
   height: number;
-  variables: string[];
   locations: Location[];
 }
 
-export type CustomBoardJson = Omit<CustomBoardData, 'locations' | 'variables'> & {
+export type CustomBoardJson = Omit<CustomBoardData, 'locations'> & {
   locations: Omit<Location, 'id'>[];
 };

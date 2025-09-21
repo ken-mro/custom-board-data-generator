@@ -3,8 +3,7 @@ import React from 'react';
 import { CustomBoardData } from '../types';
 
 interface MetadataFormProps {
-  // FIX: Omit 'variables' as it's not used in this component. This resolves the type error in App.tsx.
-  data: Omit<CustomBoardData, 'locations' | 'variables'>;
+  data: Omit<CustomBoardData, 'locations'>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 

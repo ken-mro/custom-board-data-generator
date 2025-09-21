@@ -4,7 +4,6 @@ import { CustomBoardData, Location } from './types';
 import { loadInitialData, EMPTY_STATE } from './constants';
 import Header from './components/Header';
 import MetadataForm from './components/MetadataForm';
-import VariablesForm from './components/VariablesForm';
 import LocationList from './components/LocationList';
 import JsonOutput from './components/JsonOutput';
 import DecryptModal from './components/DecryptModal';
@@ -31,19 +30,13 @@ const App: React.FC = () => {
         throw new Error("Invalid data format: not an object.");
       }
 
-      const variables = Array.isArray(jsonData.variables) ? jsonData.variables : [];
-      const variableDefaults = variables.reduce((acc, v) => ({ ...acc, [v]: '' }), {});
-
       const processedData: CustomBoardData = {
         name: jsonData.name || '',
         url: jsonData.url || '',
         width: Number(jsonData.width) || 0,
         height: Number(jsonData.height) || 0,
-        variables: variables,
         locations: (Array.isArray(jsonData.locations) ? jsonData.locations : []).map((loc: any = {}) => {
           const newLoc: Location = {
-            ...variableDefaults,
-            ...loc,
             id: crypto.randomUUID(),
             code: loc.code || '',
             title: loc.title || '',
@@ -170,7 +163,6 @@ const App: React.FC = () => {
       group: '',
       latitude: 0,
       longitude: 0,
-      ...(data?.variables.reduce((acc, cur) => ({ ...acc, [cur]: '' }), {}) || {})
     };
     setData(prev => {
       if (!prev) return null;
@@ -179,7 +171,7 @@ const App: React.FC = () => {
         locations: [...prev.locations, newLocation]
       };
     });
-  }, [data?.variables]);
+  }, []);
 
   const handleDeleteLocation = useCallback((id: string) => {
     setData(prev => {
@@ -200,31 +192,6 @@ const App: React.FC = () => {
           loc.id === id ? { ...loc, [field]: value } : loc
         )
       };
-    });
-  }, []);
-
-  const handleAddVariable = useCallback((variableName: string) => {
-    setData(prev => {
-      if (!prev) return null;
-      const newVariables = [...prev.variables, variableName];
-      const newLocations = prev.locations.map(loc => ({
-        ...loc,
-        [variableName]: ''
-      }));
-      return { ...prev, variables: newVariables, locations: newLocations };
-    });
-  }, []);
-
-  const handleDeleteVariable = useCallback((variableName: string) => {
-    setData(prev => {
-      if (!prev) return null;
-      const newVariables = prev.variables.filter(v => v !== variableName);
-      const newLocations = prev.locations.map(loc => {
-        const newLoc = { ...loc };
-        delete newLoc[variableName];
-        return newLoc;
-      });
-      return { ...prev, variables: newVariables, locations: newLocations };
     });
   }, []);
 
@@ -255,14 +222,8 @@ const App: React.FC = () => {
               data={{ name: data.name, url: data.url, width: data.width, height: data.height }}
               onChange={handleMetadataChange}
             />
-            <VariablesForm
-              variables={data.variables}
-              onAdd={handleAddVariable}
-              onDelete={handleDeleteVariable}
-            />
             <LocationList
               locations={data.locations}
-              customVariables={data.variables}
               onAdd={handleAddLocation}
               onDelete={handleDeleteLocation}
               onUpdate={handleUpdateLocation}

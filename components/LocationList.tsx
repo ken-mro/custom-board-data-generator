@@ -5,7 +5,6 @@ import { PlusIcon } from './Icons';
 
 interface LocationListProps {
   locations: Location[];
-  customVariables: string[];
   onUpdate: (id: string, field: string, value: any) => void;
   onDelete: (id: string) => void;
   onAdd: () => void;
@@ -14,7 +13,7 @@ interface LocationListProps {
   imageHeight: number;
 }
 
-const LocationList: React.FC<LocationListProps> = ({ locations, customVariables, onUpdate, onDelete, onAdd, urlTemplate, imageWidth, imageHeight }) => {
+const LocationList: React.FC<LocationListProps> = ({ locations, onUpdate, onDelete, onAdd, urlTemplate, imageWidth, imageHeight }) => {
   return (
     <div className="bg-slate-100 p-6 rounded-xl shadow-inner mt-8">
       <div className="flex justify-between items-center mb-4">
@@ -32,7 +31,6 @@ const LocationList: React.FC<LocationListProps> = ({ locations, customVariables,
           <LocationItem
             key={loc.id}
             location={loc}
-            customVariables={customVariables}
             onUpdate={onUpdate}
             onDelete={onDelete}
             urlTemplate={urlTemplate}

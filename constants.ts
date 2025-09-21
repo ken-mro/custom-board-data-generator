@@ -6,7 +6,6 @@ export const EMPTY_STATE: CustomBoardData = {
   url: '',
   width: 0,
   height: 0,
-  variables: [],
   locations: [],
 };
 
@@ -18,10 +17,12 @@ export const loadInitialData = async (): Promise<CustomBoardData> => {
   }
   const sampleData = await response.json();
   
-  // Add the client-side-only 'id' to each location and ensure `variables` exists.
+  // Add the client-side-only 'id' to each location.
   return {
-    ...sampleData,
-    variables: sampleData.variables || [],
+    name: sampleData.name || '',
+    url: sampleData.url || '',
+    width: sampleData.width || 0,
+    height: sampleData.height || 0,
     locations: sampleData.locations.map((location: Omit<Location, 'id'>) => ({
       ...location,
       id: crypto.randomUUID(),

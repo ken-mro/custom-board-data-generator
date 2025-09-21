@@ -84,7 +84,6 @@ const generateImageUrl = (template: string, location: Location): string | null =
 
 interface LocationItemProps {
   location: Location;
-  customVariables: string[];
   onUpdate: (id: string, field: string, value: any) => void;
   onDelete: (id:string) => void;
   urlTemplate: string;
@@ -92,7 +91,7 @@ interface LocationItemProps {
   imageHeight: number;
 }
 
-const LocationItem: React.FC<LocationItemProps> = ({ location, customVariables, onUpdate, onDelete, urlTemplate, imageWidth, imageHeight }) => {
+const LocationItem: React.FC<LocationItemProps> = ({ location, onUpdate, onDelete, urlTemplate, imageWidth, imageHeight }) => {
   const [imageError, setImageError] = useState(false);
   const [latDMS, setLatDMS] = useState(() => toDMS(location.latitude, true));
   const [lonDMS, setLonDMS] = useState(() => toDMS(location.longitude, false));
@@ -227,16 +226,6 @@ const LocationItem: React.FC<LocationItemProps> = ({ location, customVariables, 
                 <InputField label="Group" name="group" value={location.group} onChange={handleInputChange} />
                 <InputField label="Latitude" name="latitude" type="number" value={location.latitude} onChange={handleInputChange} />
                 <InputField label="longitude" name="longitude" type="number" value={location.longitude} onChange={handleInputChange} />
-                {/* Custom Variable Fields */}
-                {customVariables.map(variable => (
-                    <InputField
-                        key={variable}
-                        label={variable.charAt(0).toUpperCase() + variable.slice(1).replace(/_/g, ' ')}
-                        name={variable}
-                        value={location[variable] || ''}
-                        onChange={handleInputChange}
-                    />
-                ))}
             </div>
         </div>
     </div>

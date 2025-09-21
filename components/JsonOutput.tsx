@@ -97,9 +97,9 @@ const JsonOutput: React.FC<{ data: CustomBoardData }> = ({ data }) => {
 
   const formattedJson = useMemo(() => {
     // Destructure to separate properties we want to modify or exclude.
-    const { locations, variables, ...metadata } = data;
+    const { locations, ...metadata } = data;
 
-    // Create the final export object, excluding 'variables' and the client-side 'id' from locations.
+    // Create the final export object, excluding the client-side 'id' from locations.
     const exportData: CustomBoardJson = {
       ...metadata,
       locations: locations.map(({ id, ...rest }) => rest),
