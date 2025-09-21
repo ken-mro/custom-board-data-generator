@@ -1,10 +1,12 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { CustomBoardData, Location } from './types';
 import { loadInitialData, EMPTY_STATE } from './constants';
 import Header from './components/Header';
 import MetadataForm from './components/MetadataForm';
 import LocationList from './components/LocationList';
+import LocationMap, { LocationMapRef } from './components/LocationMap';
+import LocationMapModal from './components/LocationMapModal';
 import JsonOutput from './components/JsonOutput';
 import DecryptModal from './components/DecryptModal';
 import { decryptWithAppSecret, verifyUserPassword, EncryptedData } from './services/cryptoService';
@@ -16,6 +18,13 @@ const App: React.FC = () => {
   const [fileToDecrypt, setFileToDecrypt] = useState<File | null>(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [decryptionError, setDecryptionError] = useState<string | null>(null);
+  
+  // Map modal state
+  const [selectedLocationForMap, setSelectedLocationForMap] = useState<Location | null>(null);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  
+  // Ref for the LocationMap component to access navigation methods (keeping for existing main map)
+  const mapRef = useRef<LocationMapRef>(null);
   
   // Drag and drop state for dnd-kit
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -190,6 +199,17 @@ const App: React.FC = () => {
     });
   }, []);
 
+  const handleNavigateToLocation = useCallback((location: Location) => {
+    console.log('Opening map modal for location:', location.title);
+    setSelectedLocationForMap(location);
+    setIsMapModalOpen(true);
+  }, []);
+
+  const handleCloseMapModal = useCallback(() => {
+    setIsMapModalOpen(false);
+    setSelectedLocationForMap(null);
+  }, []);
+
   const handleUpdateLocation = useCallback((id: string, field: string, value: any) => {
     setData(prev => {
       if (!prev) return null;
@@ -306,11 +326,15 @@ const App: React.FC = () => {
                   onAdd={handleAddLocation}
                   onDelete={handleDeleteLocation}
                   onUpdate={handleUpdateLocation}
+                  onNavigateToMap={handleNavigateToLocation}
                   urlTemplate={data.url}
                   imageWidth={data.width}
                   imageHeight={data.height}
                 />
               </SortableContext>
+              
+              {/* Location Map */}
+              <LocationMap ref={mapRef} locations={data.locations} />
             </div>
 
             {/* Right Column: JSON Output */}
@@ -326,6 +350,12 @@ const App: React.FC = () => {
           onSubmit={handleDecrypt}
           isDecrypting={isDecrypting}
           error={decryptionError}
+        />
+        
+        <LocationMapModal
+          isOpen={isMapModalOpen}
+          onClose={handleCloseMapModal}
+          location={selectedLocationForMap}
         />
         
         {/* DragOverlay for better visual feedback */}

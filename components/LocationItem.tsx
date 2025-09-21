@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Location } from '../types';
-import { TrashIcon, ImageIcon, DragHandleIcon } from './Icons';
+import { TrashIcon, ImageIcon, DragHandleIcon, MapIcon } from './Icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -89,6 +89,7 @@ interface LocationItemProps {
   index: number;
   onUpdate: (id: string, field: string, value: any) => void;
   onDelete: (id: string) => void;
+  onNavigateToMap?: (location: Location) => void;
   urlTemplate: string;
   imageWidth: number;
   imageHeight: number;
@@ -98,7 +99,8 @@ const LocationItem: React.FC<LocationItemProps> = ({
   location, 
   index,
   onUpdate, 
-  onDelete, 
+  onDelete,
+  onNavigateToMap, 
   urlTemplate, 
   imageWidth, 
   imageHeight
@@ -250,7 +252,17 @@ const LocationItem: React.FC<LocationItemProps> = ({
       
         {/* Form Fields & Actions */}
         <div className="flex-grow w-full relative">
-            <div className="absolute top-0 right-0 z-10">
+            <div className="absolute top-0 right-0 z-10 flex gap-1">
+                {onNavigateToMap && (
+                    <button 
+                        onClick={() => onNavigateToMap(location)}
+                        className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors duration-200"
+                        aria-label="Navigate to location on map"
+                        title="Show on map"
+                    >
+                        <MapIcon className="w-5 h-5"/>
+                    </button>
+                )}
                 <button 
                     onClick={() => onDelete(location.id)}
                     className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors duration-200"
@@ -259,7 +271,7 @@ const LocationItem: React.FC<LocationItemProps> = ({
                     <TrashIcon className="w-5 h-5"/>
                 </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 pr-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 mt-8">
                 <InputField label="Code" name="code" value={location.code} onChange={handleInputChange} />
                 <InputField label="Title" name="title" value={location.title} onChange={handleInputChange} />
                 <InputField label="Subtitle" name="subtitle" value={location.subtitle} onChange={handleInputChange} />

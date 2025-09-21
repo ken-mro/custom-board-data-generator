@@ -8,6 +8,7 @@ interface LocationListProps {
   onUpdate: (id: string, field: string, value: any) => void;
   onDelete: (id: string) => void;
   onAdd: () => void;
+  onNavigateToMap?: (location: Location) => void;
   urlTemplate: string;
   imageWidth: number;
   imageHeight: number;
@@ -18,6 +19,7 @@ const LocationList: React.FC<LocationListProps> = ({
   onUpdate, 
   onDelete, 
   onAdd, 
+  onNavigateToMap,
   urlTemplate, 
   imageWidth, 
   imageHeight
@@ -35,6 +37,7 @@ const LocationList: React.FC<LocationListProps> = ({
             index={index}
             onUpdate={onUpdate}
             onDelete={onDelete}
+            onNavigateToMap={onNavigateToMap}
             urlTemplate={urlTemplate}
             imageWidth={imageWidth}
             imageHeight={imageHeight}
