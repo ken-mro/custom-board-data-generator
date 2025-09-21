@@ -8,12 +8,19 @@ import LocationList from './components/LocationList';
 import JsonOutput from './components/JsonOutput';
 import DecryptModal from './components/DecryptModal';
 import { decryptWithAppSecret, verifyUserPassword, EncryptedData } from './services/cryptoService';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, DragMoveEvent } from '@dnd-kit/core';
+import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 const App: React.FC = () => {
   const [data, setData] = useState<CustomBoardData | null>(null);
   const [fileToDecrypt, setFileToDecrypt] = useState<File | null>(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [decryptionError, setDecryptionError] = useState<string | null>(null);
+  
+  // Drag and drop state for dnd-kit
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState<{x: number, y: number} | null>(null);
+  const [cursorPosition, setCursorPosition] = useState<{x: number, y: number} | null>(null);
 
   useEffect(() => {
     loadInitialData()
@@ -195,6 +202,68 @@ const App: React.FC = () => {
     });
   }, []);
 
+  // Drag and drop handlers for dnd-kit
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+    
+    // Capture the initial offset between cursor and element
+    const activatorEvent = event.activatorEvent as MouseEvent;
+    if (activatorEvent && activatorEvent.clientX !== undefined && activatorEvent.clientY !== undefined) {
+      const activeElement = document.getElementById(event.active.id as string);
+      if (activeElement) {
+        const rect = activeElement.getBoundingClientRect();
+        const offset = {
+          x: activatorEvent.clientX - rect.left,
+          y: activatorEvent.clientY - rect.top,
+        };
+        setDragOffset(offset);
+        setCursorPosition({ x: activatorEvent.clientX, y: activatorEvent.clientY });
+        
+        // Add mouse move listener to track cursor during drag
+        const handleMouseMove = (e: MouseEvent) => {
+          setCursorPosition({ x: e.clientX, y: e.clientY });
+        };
+        
+        const handleMouseUp = () => {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+        };
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      }
+    }
+  }, []);
+
+  const handleDragMove = useCallback((event: DragMoveEvent) => {
+    // This handler is kept for compatibility but we use mouse listeners above
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    setActiveId(null);
+    setDragOffset(null);
+    setCursorPosition(null);
+    
+    if (!over || !data) return;
+    
+    if (active.id !== over.id) {
+      const oldIndex = data.locations.findIndex(location => location.id === active.id);
+      const newIndex = data.locations.findIndex(location => location.id === over.id);
+      
+      const newLocations = arrayMove(data.locations, oldIndex, newIndex);
+      
+      setData(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          locations: newLocations
+        };
+      });
+    }
+  }, [data]);
+
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -211,43 +280,83 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <Header onFileSelect={handleFileSelect} />
-      <main className="container mx-auto px-4 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+    <DndContext 
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="min-h-screen">
+        <Header onFileSelect={handleFileSelect} />
+        <main className="container mx-auto px-4 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-          {/* Left Column: Forms */}
-          <div className="space-y-8">
-            <MetadataForm
-              data={{ name: data.name, url: data.url, width: data.width, height: data.height }}
-              onChange={handleMetadataChange}
-            />
-            <LocationList
-              locations={data.locations}
-              onAdd={handleAddLocation}
-              onDelete={handleDeleteLocation}
-              onUpdate={handleUpdateLocation}
-              urlTemplate={data.url}
-              imageWidth={data.width}
-              imageHeight={data.height}
-            />
+            {/* Left Column: Forms */}
+            <div className="space-y-8">
+              <MetadataForm
+                data={{ name: data.name, url: data.url, width: data.width, height: data.height }}
+                onChange={handleMetadataChange}
+              />
+              <SortableContext 
+                items={data.locations.map(loc => loc.id)} 
+                strategy={verticalListSortingStrategy}
+              >
+                <LocationList
+                  locations={data.locations}
+                  onAdd={handleAddLocation}
+                  onDelete={handleDeleteLocation}
+                  onUpdate={handleUpdateLocation}
+                  urlTemplate={data.url}
+                  imageWidth={data.width}
+                  imageHeight={data.height}
+                />
+              </SortableContext>
+            </div>
+
+            {/* Right Column: JSON Output */}
+            <div className="lg:sticky lg:top-8 h-[calc(100vh-4rem)]">
+              <JsonOutput data={data} />
+            </div>
+
           </div>
-
-          {/* Right Column: JSON Output */}
-          <div className="lg:sticky lg:top-8 h-[calc(100vh-4rem)]">
-            <JsonOutput data={data} />
-          </div>
-
-        </div>
-      </main>
-      <DecryptModal
-        isOpen={!!fileToDecrypt}
-        onClose={() => setFileToDecrypt(null)}
-        onSubmit={handleDecrypt}
-        isDecrypting={isDecrypting}
-        error={decryptionError}
-      />
-    </div>
+        </main>
+        <DecryptModal
+          isOpen={!!fileToDecrypt}
+          onClose={() => setFileToDecrypt(null)}
+          onSubmit={handleDecrypt}
+          isDecrypting={isDecrypting}
+          error={decryptionError}
+        />
+        
+        {/* DragOverlay for better visual feedback */}
+        <DragOverlay
+          dropAnimation={{
+            duration: 250,
+            easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+          }}
+          style={{
+            cursor: 'grabbing',
+          }}
+        >
+          {activeId && data && cursorPosition && dragOffset ? (
+            <div 
+              className="bg-white p-4 rounded-lg shadow-xl opacity-90 transform scale-105 pointer-events-none"
+              style={{
+                position: 'fixed',
+                left: cursorPosition.x - dragOffset.x,
+                top: cursorPosition.y - dragOffset.y,
+                zIndex: 9999,
+                transform: 'none', // Override any transform from dnd-kit
+              }}
+            >
+              <div className="text-sm font-medium">
+                {data.locations.find(loc => loc.id === activeId)?.title || 'Location'}
+              </div>
+            </div>
+          ) : null}
+        </DragOverlay>
+      </div>
+    </DndContext>
   );
 };
 

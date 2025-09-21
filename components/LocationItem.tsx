@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Location } from '../types';
-import { TrashIcon, ImageIcon } from './Icons';
+import { TrashIcon, ImageIcon, DragHandleIcon } from './Icons';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // Helper function to convert decimal degrees to DMS format
 const toDMS = (decimal: number, isLatitude: boolean): string => {
@@ -84,17 +86,43 @@ const generateImageUrl = (template: string, location: Location): string | null =
 
 interface LocationItemProps {
   location: Location;
+  index: number;
   onUpdate: (id: string, field: string, value: any) => void;
-  onDelete: (id:string) => void;
+  onDelete: (id: string) => void;
   urlTemplate: string;
   imageWidth: number;
   imageHeight: number;
 }
 
-const LocationItem: React.FC<LocationItemProps> = ({ location, onUpdate, onDelete, urlTemplate, imageWidth, imageHeight }) => {
+const LocationItem: React.FC<LocationItemProps> = ({ 
+  location, 
+  index,
+  onUpdate, 
+  onDelete, 
+  urlTemplate, 
+  imageWidth, 
+  imageHeight
+}) => {
   const [imageError, setImageError] = useState(false);
   const [latDMS, setLatDMS] = useState(() => toDMS(location.latitude, true));
   const [lonDMS, setLonDMS] = useState(() => toDMS(location.longitude, false));
+
+  // dnd-kit sortable hook
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: location.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const imageUrl = generateImageUrl(urlTemplate, location);
 
@@ -145,7 +173,17 @@ const LocationItem: React.FC<LocationItemProps> = ({ location, onUpdate, onDelet
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow transition-shadow hover:shadow-md flex flex-col sm:flex-row gap-4 items-start">
+    <div 
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white p-4 rounded-lg transition-all duration-200 flex flex-col sm:flex-row gap-4 items-stretch ${
+        isDragging 
+          ? 'opacity-50 shadow-2xl z-50' 
+          : 'shadow hover:shadow-lg'
+      }`}
+      {...attributes}
+    >
+
         {/* Image & DMS Column */}
         <div className="flex-shrink-0 w-full sm:w-auto">
             {/* Image Preview */}
@@ -212,13 +250,15 @@ const LocationItem: React.FC<LocationItemProps> = ({ location, onUpdate, onDelet
       
         {/* Form Fields & Actions */}
         <div className="flex-grow w-full relative">
-            <button 
-                onClick={() => onDelete(location.id)}
-                className="absolute top-0 right-0 p-1 text-slate-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors duration-200"
-                aria-label="Delete location"
-            >
-                <TrashIcon className="w-5 h-5"/>
-            </button>
+            <div className="absolute top-0 right-0 z-10">
+                <button 
+                    onClick={() => onDelete(location.id)}
+                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors duration-200"
+                    aria-label="Delete location"
+                >
+                    <TrashIcon className="w-5 h-5"/>
+                </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 pr-8">
                 <InputField label="Code" name="code" value={location.code} onChange={handleInputChange} />
                 <InputField label="Title" name="title" value={location.title} onChange={handleInputChange} />
@@ -227,6 +267,19 @@ const LocationItem: React.FC<LocationItemProps> = ({ location, onUpdate, onDelet
                 <InputField label="Latitude" name="latitude" type="number" value={location.latitude} onChange={handleInputChange} />
                 <InputField label="longitude" name="longitude" type="number" value={location.longitude} onChange={handleInputChange} />
             </div>
+        </div>
+
+        {/* Draggable Region */}
+        <div 
+          className={`flex-shrink-0 w-10 bg-slate-50 hover:bg-slate-100 border-l border-slate-200 rounded-r-lg transition-all duration-200 cursor-grab active:cursor-grabbing flex flex-col items-center justify-center self-stretch ${
+            isDragging ? 'bg-blue-100 border-blue-300' : ''
+          }`}
+          {...attributes}
+          {...listeners}
+          aria-label="Drag to reorder"
+          title="Drag to reorder"
+        >
+          <DragHandleIcon className="w-5 h-5 text-slate-400" />
         </div>
     </div>
   );

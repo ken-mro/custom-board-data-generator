@@ -13,17 +13,26 @@ interface LocationListProps {
   imageHeight: number;
 }
 
-const LocationList: React.FC<LocationListProps> = ({ locations, onUpdate, onDelete, onAdd, urlTemplate, imageWidth, imageHeight }) => {
+const LocationList: React.FC<LocationListProps> = ({ 
+  locations, 
+  onUpdate, 
+  onDelete, 
+  onAdd, 
+  urlTemplate, 
+  imageWidth, 
+  imageHeight
+}) => {
   return (
     <div className="bg-slate-100 p-6 rounded-xl shadow-inner mt-8">
       <div className="mb-4">
         <h2 className="text-xl font-bold text-slate-800">Locations</h2>
       </div>
       <div className="space-y-4">
-        {locations.map((loc) => (
+        {locations.map((loc, index) => (
           <LocationItem
             key={loc.id}
             location={loc}
+            index={index}
             onUpdate={onUpdate}
             onDelete={onDelete}
             urlTemplate={urlTemplate}
