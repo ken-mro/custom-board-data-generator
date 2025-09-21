@@ -312,7 +312,7 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
             {/* Left Column: Forms */}
-            <div className="space-y-8">
+            <div className="space-y-8 z-0">
               <MetadataForm
                 data={{ name: data.name, url: data.url, width: data.width, height: data.height }}
                 onChange={handleMetadataChange}
