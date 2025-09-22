@@ -46,6 +46,32 @@ const fromDMSToDecimal = (dms: string): number => {
     return decimal;
 };
 
+// Helper function to parse comma-separated lat/lng string
+const parseLatLngText = (text: string): { lat: number; lng: number } | null => {
+  if (!text.trim()) {
+    return null;
+  }
+  
+  const parts = text.split(',').map(part => part.trim());
+  if (parts.length !== 2) {
+    return null;
+  }
+  
+  const lat = parseFloat(parts[0]);
+  const lng = parseFloat(parts[1]);
+  
+  if (isNaN(lat) || isNaN(lng)) {
+    return null;
+  }
+  
+  // Basic validation for latitude (-90 to 90) and longitude (-180 to 180)
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return null;
+  }
+  
+  return { lat, lng };
+};
+
 /**
  * Generates an image URL by replacing placeholders in a template string with values from a location object.
  * Placeholders are defined by curly braces, e.g., {code}, {title}.
@@ -108,6 +134,9 @@ const LocationItem: React.FC<LocationItemProps> = ({
   const [imageError, setImageError] = useState(false);
   const [latDMS, setLatDMS] = useState(() => toDMS(location.latitude, true));
   const [lonDMS, setLonDMS] = useState(() => toDMS(location.longitude, false));
+  const [latLngText, setLatLngText] = useState(() => 
+    `${location.latitude || 0}, ${location.longitude || 0}`
+  );
 
   // dnd-kit sortable hook
   const {
@@ -146,6 +175,14 @@ const LocationItem: React.FC<LocationItemProps> = ({
     }
   }, [location.longitude]);
 
+  // Update lat/lng text input when individual values change
+  useEffect(() => {
+    const newLatLngText = `${location.latitude || 0}, ${location.longitude || 0}`;
+    if (latLngText !== newLatLngText) {
+      setLatLngText(newLatLngText);
+    }
+  }, [location.latitude, location.longitude]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -171,6 +208,17 @@ const LocationItem: React.FC<LocationItemProps> = ({
     if (!isNaN(decimal)) {
       const key = isLatitude ? 'latitude' : 'longitude';
       onUpdate(location.id, key, parseFloat(decimal.toFixed(6)));
+    }
+  };
+
+  const handleLatLngTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setLatLngText(text);
+
+    const parsed = parseLatLngText(text);
+    if (parsed) {
+      onUpdate(location.id, 'latitude', parseFloat(parsed.lat.toFixed(6)));
+      onUpdate(location.id, 'longitude', parseFloat(parsed.lng.toFixed(6)));
     }
   };
 
@@ -278,6 +326,19 @@ const LocationItem: React.FC<LocationItemProps> = ({
                 <InputField label="Group" name="group" value={location.group} onChange={handleInputChange} />
                 <InputField label="Latitude" name="latitude" type="number" value={location.latitude} onChange={handleInputChange} />
                 <InputField label="longitude" name="longitude" type="number" value={location.longitude} onChange={handleInputChange} />
+                <div className="md:col-span-2">
+                    <label htmlFor={`lat-lng-${location.id}`} className="block text-xs font-medium text-slate-600 mb-1">
+                        Latitude, Longitude
+                    </label>
+                    <input
+                        type="text"
+                        id={`lat-lng-${location.id}`}
+                        value={latLngText}
+                        onChange={handleLatLngTextChange}
+                        placeholder="e.g., 34.64777715038848, 135.3854095973777"
+                        className="w-full px-2 py-1 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                </div>
             </div>
         </div>
 
