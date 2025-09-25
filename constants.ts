@@ -11,7 +11,7 @@ export const EMPTY_STATE: CustomBoardData = {
 
 // Asynchronously load data from the JSON file to avoid syntax issues with import assertions.
 export const loadInitialData = async (): Promise<CustomBoardData> => {
-  const response = await fetch('./sample.json');
+  const response = await fetch('/sample.json');
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }

@@ -1,0 +1,488 @@
+{
+  "name": "Expo 2025 Osaka Country Pavilions",
+  "url": "https://images.weserv.nl/?url=ssl:flagicons.lipis.dev/flags/4x3/{code}.svg&output=png&w=192&h=144",
+  "width": 192,
+  "height": 144,
+  "locations": [
+    {
+      "code": "np",
+      "title": "Nepal",
+      "subtitle": "C01",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650603,
+      "longitude": 135.386014
+    },
+    {
+      "code": "lu",
+      "title": "Luxembourg",
+      "subtitle": "C02",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650655,
+      "longitude": 135.385608
+    },
+    {
+      "code": "de",
+      "title": "Germany",
+      "subtitle": "C03",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650863,
+      "longitude": 135.385239
+    },
+    {
+      "code": "kr",
+      "title": "Republic of Korea",
+      "subtitle": "C04",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650989,
+      "longitude": 135.384867
+    },
+    {
+      "code": "az",
+      "title": "Azerbaijan",
+      "subtitle": "C07",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.651,
+      "longitude": 135.384297
+    },
+    {
+      "code": "mc",
+      "title": "Monaco",
+      "subtitle": "C10",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.651371,
+      "longitude": 135.383811
+    },
+    {
+      "code": "tr",
+      "title": "Türkiye",
+      "subtitle": "C11",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.651569,
+      "longitude": 135.383628
+    },
+    {
+      "code": "th",
+      "title": "Thailand",
+      "subtitle": "C12",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.651189,
+      "longitude": 135.383362
+    },
+    {
+      "code": "es",
+      "title": "Spain",
+      "subtitle": "C13",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.6512,
+      "longitude": 135.383009
+    },
+    {
+      "code": "sa",
+      "title": "Saudi Arabia",
+      "subtitle": "C14",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.651212,
+      "longitude": 135.382654
+    },
+    {
+      "code": "au",
+      "title": "Australia",
+      "subtitle": "C15",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.651157,
+      "longitude": 135.382314
+    },
+    {
+      "code": "id",
+      "title": "Indonesia",
+      "subtitle": "C16",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.65107,
+      "longitude": 135.381943
+    },
+    {
+      "code": "in",
+      "title": "India-Bharat",
+      "subtitle": "C17",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650958,
+      "longitude": 135.38172
+    },
+    {
+      "code": "uz",
+      "title": "Uzbekistan",
+      "subtitle": "C18",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650926,
+      "longitude": 135.381274
+    },
+    {
+      "code": "eg",
+      "title": "Egypt",
+      "subtitle": "C22",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650419,
+      "longitude": 135.381567
+    },
+    {
+      "code": "sn",
+      "title": "Senegal",
+      "subtitle": "C21",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650418,
+      "longitude": 135.381453
+    },
+    {
+      "code": "bd",
+      "title": "Bangladesh",
+      "subtitle": "C20",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650414,
+      "longitude": 135.381328
+    },
+    {
+      "code": "rs",
+      "title": "Serbia",
+      "subtitle": "C19",
+      "group": "Connecting Lives Zone",
+      "latitude": 34.650495,
+      "longitude": 135.381064
+    },
+    {
+      "code": "be",
+      "title": "Belgium",
+      "subtitle": "S08",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649906,
+      "longitude": 135.380691
+    },
+    {
+      "code": "eu",
+      "title": "EU",
+      "subtitle": "S07",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649942,
+      "longitude": 135.380958
+    },
+    {
+      "code": "lv",
+      "title": "Baltic (Latvia & Lithuania)",
+      "subtitle": "S06",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649904,
+      "longitude": 135.381049
+    },
+    {
+      "code": "dz",
+      "title": "Algeria",
+      "subtitle": "S05",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649923,
+      "longitude": 135.381231
+    },
+    {
+      "code": "kh",
+      "title": "Cambodia",
+      "subtitle": "S04",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649843,
+      "longitude": 135.381346
+    },
+    {
+      "code": "tn",
+      "title": "Tunisia",
+      "subtitle": "S03",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649819,
+      "longitude": 135.381452
+    },
+    {
+      "code": "cl",
+      "title": "Chile",
+      "subtitle": "S02",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649792,
+      "longitude": 135.381568
+    },
+    {
+      "code": "it",
+      "title": "Italy and The Holy See",
+      "subtitle": "S09",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649527,
+      "longitude": 135.380652
+    },
+    {
+      "code": "sg",
+      "title": "Singapore",
+      "subtitle": "S11",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649063,
+      "longitude": 135.380275
+    },
+    {
+      "code": "bg",
+      "title": "Bulgaria",
+      "subtitle": "S12",
+      "group": "Saving Lives Zone",
+      "latitude": 34.648918,
+      "longitude": 135.38044
+    },
+    {
+      "code": "nl",
+      "title": "Netherlands",
+      "subtitle": "S13",
+      "group": "Saving Lives Zone",
+      "latitude": 34.648721,
+      "longitude": 135.380494
+    },
+    {
+      "code": "om",
+      "title": "Oman",
+      "subtitle": "S15",
+      "group": "Saving Lives Zone",
+      "latitude": 34.64888,
+      "longitude": 135.381661
+    },
+    {
+      "code": "hu",
+      "title": "Hungary",
+      "subtitle": "S16",
+      "group": "Saving Lives Zone",
+      "latitude": 34.649067,
+      "longitude": 135.381911
+    },
+    {
+      "code": "ro",
+      "title": "Romania",
+      "subtitle": "S21",
+      "group": "Saving Lives Zone",
+      "latitude": 34.648329,
+      "longitude": 135.381358
+    },
+    {
+      "code": "gb",
+      "title": "United Kingdom",
+      "subtitle": "S22",
+      "group": "Saving Lives Zone",
+      "latitude": 34.648072,
+      "longitude": 135.381651
+    },
+    {
+      "code": "ao",
+      "title": "Angola",
+      "subtitle": "S23",
+      "group": "Saving Lives Zone",
+      "latitude": 34.647895,
+      "longitude": 135.382101
+    },
+    {
+      "code": "pl",
+      "title": "Poland",
+      "subtitle": "S20",
+      "group": "Saving Lives Zone",
+      "latitude": 34.648376,
+      "longitude": 135.381835
+    },
+    {
+      "code": "ie",
+      "title": "Ireland",
+      "subtitle": "P01",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.650136,
+      "longitude": 135.386262
+    },
+    {
+      "code": "my",
+      "title": "Malaysia",
+      "subtitle": "P02",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.65016,
+      "longitude": 135.385899
+    },
+    {
+      "code": "ph",
+      "title": "Philippines",
+      "subtitle": "P09",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.649584,
+      "longitude": 135.385594
+    },
+    {
+      "code": "mz",
+      "title": "Mozambique",
+      "subtitle": "P08",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.64964,
+      "longitude": 135.385088
+    },
+    {
+      "code": "pe",
+      "title": "Peru",
+      "subtitle": "P05",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.649483,
+      "longitude": 135.384808
+    },
+    {
+      "code": "jo",
+      "title": "Jordan",
+      "subtitle": "P04",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.649579,
+      "longitude": 135.38476
+    },
+    {
+      "code": "us",
+      "title": "United States of America",
+      "subtitle": "P11",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.649285,
+      "longitude": 135.385519
+    },
+    {
+      "code": "fr",
+      "title": "France",
+      "subtitle": "P12",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.649075,
+      "longitude": 135.385687
+    },
+    {
+      "code": "vn",
+      "title": "Viet Nam",
+      "subtitle": "P15",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.648752,
+      "longitude": 135.386498
+    },
+    {
+      "code": "qa",
+      "title": "Qatar",
+      "subtitle": "P17",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.648416,
+      "longitude": 135.386356
+    },
+    {
+      "code": "ae",
+      "title": "United Arab Emirates",
+      "subtitle": "P18",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.648093,
+      "longitude": 135.386393
+    },
+    {
+      "code": "ca",
+      "title": "Canada",
+      "subtitle": "P19",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647957,
+      "longitude": 135.385882
+    },
+    {
+      "code": "pt",
+      "title": "Portugal",
+      "subtitle": "P20",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647453,
+      "longitude": 135.385798
+    },
+    {
+      "code": "co",
+      "title": "Colombia",
+      "subtitle": "P21",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647673,
+      "longitude": 135.3854
+    },
+    {
+      "code": "ch",
+      "title": "Switzerland",
+      "subtitle": "P22",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647877,
+      "longitude": 135.385436
+    },
+    {
+      "code": "at",
+      "title": "Austria",
+      "subtitle": "P23",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.648079,
+      "longitude": 135.385232
+    },
+    {
+      "code": "br",
+      "title": "Brazil",
+      "subtitle": "P26",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.648432,
+      "longitude": 135.384744
+    },
+    {
+      "code": "kw",
+      "title": "Kuwait",
+      "subtitle": "P27",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.648613,
+      "longitude": 135.384523
+    },
+    {
+      "code": "cn",
+      "title": "China",
+      "subtitle": "P28",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.648689,
+      "longitude": 135.384194
+    },
+    {
+      "code": "bh",
+      "title": "Bahrain",
+      "subtitle": "P34",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647526,
+      "longitude": 135.38465
+    },
+    {
+      "code": "tm",
+      "title": "Turkmenistan",
+      "subtitle": "P35",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647404,
+      "longitude": 135.384441
+    },
+    {
+      "code": "is",
+      "title": "Nordic (Iceland, Sweden, Denmark, Norway, Finland)",
+      "subtitle": "P36",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647373,
+      "longitude": 135.384184
+    },
+    {
+      "code": "mt",
+      "title": "Malta",
+      "subtitle": "P37",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647477,
+      "longitude": 135.383889
+    },
+    {
+      "code": "cz",
+      "title": "Czechia",
+      "subtitle": "P38",
+      "group": "Empowering Lives Zone",
+      "latitude": 34.647575,
+      "longitude": 135.383647
+    },
+    {
+      "code": "jp",
+      "title": "Japan Pavilion",
+      "subtitle": "E10",
+      "group": "East Gate Zone",
+      "latitude": 34.648252,
+      "longitude": 135.387927
+    }
+  ]
+}
