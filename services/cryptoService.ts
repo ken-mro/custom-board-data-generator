@@ -48,10 +48,7 @@ export const encryptWithAppSecret = async (plainText: string, password?: string)
  * @returns The decrypted string content.
  */
 export const decryptWithAppSecret = async (encryptedPayload: EncryptedData, password?: string): Promise<string> => {
-    try {
-        console.log('Attempting decryption with API_BASE:', API_BASE);
-        console.log('Encrypted payload keys:', Object.keys(encryptedPayload));
-        
+    try {        
         const response = await fetch(`${API_BASE}/decrypt`, {
             method: 'POST',
             headers: {
@@ -63,22 +60,14 @@ export const decryptWithAppSecret = async (encryptedPayload: EncryptedData, pass
             }),
         });
 
-        console.log('Decrypt response status:', response.status);
-        console.log('Decrypt response statusText:', response.statusText);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Decrypt API error response:', errorText);
-            
+        if (!response.ok) {            
             if (response.status === 401) {
                 throw new Error('Invalid password provided.');
             }
-            throw new Error(`Decryption failed: ${response.statusText} - ${errorText}`);
+            throw new Error(`Decryption failed: ${response.statusText}`);
         }
 
-        const result = await response.json();
-        console.log('Decrypt successful, data type:', typeof result.data);
-        
+        const result = await response.json();       
         return typeof result.data === 'string' ? result.data : JSON.stringify(result.data);
     } catch (error) {
         console.error('Decryption error:', error);
