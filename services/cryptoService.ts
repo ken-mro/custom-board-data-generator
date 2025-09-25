@@ -12,17 +12,22 @@ const API_BASE = process.env.NODE_ENV === 'production'
 
 /**
  * Encrypts data using server-side encryption via Vercel Functions.
+ * If password is provided, it will be hashed and added to the data before encryption.
  * @param plainText The string content to encrypt.
+ * @param password Optional password to add password protection.
  * @returns An object containing the salt, iv, and ciphertext as base64 strings.
  */
-export const encryptWithAppSecret = async (plainText: string): Promise<EncryptedData> => {
+export const encryptWithAppSecret = async (plainText: string, password?: string): Promise<EncryptedData> => {
     try {
         const response = await fetch(`${API_BASE}/encrypt`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ data: plainText }),
+            body: JSON.stringify({ 
+                data: plainText, 
+                password: password || undefined 
+            }),
         });
 
         if (!response.ok) {
@@ -39,20 +44,28 @@ export const encryptWithAppSecret = async (plainText: string): Promise<Encrypted
 
 /**
  * Decrypts data using server-side decryption via Vercel Functions.
+ * If the encrypted data contains password protection, password verification is handled automatically.
  * @param encryptedPayload An object containing the salt, iv, and ciphertext.
+ * @param password Optional password for password-protected files.
  * @returns The decrypted string content.
  */
-export const decryptWithAppSecret = async (encryptedPayload: EncryptedData): Promise<string> => {
+export const decryptWithAppSecret = async (encryptedPayload: EncryptedData, password?: string): Promise<string> => {
     try {
         const response = await fetch(`${API_BASE}/decrypt`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ encryptedData: encryptedPayload }),
+            body: JSON.stringify({ 
+                encryptedData: encryptedPayload,
+                password: password || undefined
+            }),
         });
 
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Invalid password provided.');
+            }
             throw new Error(`Decryption failed: ${response.statusText}`);
         }
 
@@ -60,64 +73,6 @@ export const decryptWithAppSecret = async (encryptedPayload: EncryptedData): Pro
         return typeof result.data === 'string' ? result.data : JSON.stringify(result.data);
     } catch (error) {
         console.error('Decryption error:', error);
-        throw new Error('Failed to decrypt data. Please check the file and try again.');
-    }
-};
-
-// --- Functions for user password hashing (now via API) ---
-
-/**
- * Hashes a user-provided password using server-side SHA-256.
- * @param password The password to hash.
- * @returns A hex string representation of the hash.
- */
-export const hashUserPassword = async (password: string): Promise<string> => {
-    try {
-        const response = await fetch(`${API_BASE}/encrypt`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ data: 'temp', password }), // We only need the password hash
-        });
-
-        if (!response.ok) {
-            throw new Error(`Password hashing failed: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        return result.passwordHash;
-    } catch (error) {
-        console.error('Password hashing error:', error);
-        throw new Error('Failed to hash password. Please try again.');
-    }
-};
-
-/**
- * Verifies a password against encrypted data that contains password protection.
- * @param password The password to verify.
- * @param encryptedPayload The encrypted payload that may contain password hash.
- * @param passwordHash The password hash to verify against.
- * @returns A boolean indicating if the password matches.
- */
-export const verifyUserPassword = async (password: string, passwordHash: string): Promise<boolean> => {
-    try {
-        const response = await fetch(`${API_BASE}/decrypt`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                encryptedData: { salt: '', iv: '', ciphertext: '' }, // Dummy data
-                password,
-                passwordHash
-            }),
-        });
-
-        // If the response is successful, password is correct
-        return response.ok;
-    } catch (error) {
-        console.error('Password verification error:', error);
-        return false;
+        throw new Error('Failed to decrypt data. Please check the file and password and try again.');
     }
 };

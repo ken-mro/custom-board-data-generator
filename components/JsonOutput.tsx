@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { CustomBoardData, CustomBoardJson } from '../types';
 import { CopyIcon, DownloadIcon, CheckIcon, LockClosedIcon } from './Icons';
-import { encryptWithAppSecret, hashUserPassword } from '../services/cryptoService';
+import { encryptWithAppSecret } from '../services/cryptoService';
 
 
 // --- Password Modal Component ---
@@ -129,28 +129,14 @@ const JsonOutput: React.FC<{ data: CustomBoardData }> = ({ data }) => {
   const handleEncryptedDownload = async (password: string) => {
     setIsEncrypting(true);
     try {
-      // Make API call to encrypt data with optional password
-      const response = await fetch('/api/encrypt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: formattedJson,
-          password: password || undefined
-        }),
-      });
+      // Use the updated encryptWithAppSecret function that handles password hashing internally
+      const encryptedPayload = await encryptWithAppSecret(formattedJson, password || undefined);
 
-      if (!response.ok) {
-        throw new Error(`Encryption failed: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-
-      // Create the final encrypted file structure
+      // Create the final encrypted file structure (no separate passwordHash field needed)
       const encryptedFileData = {
-        ...result.encrypted,
-        ...(result.passwordHash ? { passwordHash: result.passwordHash } : {})
+        salt: encryptedPayload.salt,
+        iv: encryptedPayload.iv,
+        ciphertext: encryptedPayload.ciphertext
       };
 
       const blob = new Blob([JSON.stringify(encryptedFileData, null, 2)], { type: 'application/json' });

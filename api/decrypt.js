@@ -98,7 +98,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { encryptedData, password, passwordHash } = req.body;
+        const { encryptedData, password } = req.body;
 
         if (!encryptedData) {
             res.status(400).json({ error: 'Encrypted data is required for decryption.' });
@@ -111,14 +111,7 @@ export default async function handler(req, res) {
             return;
         }
 
-        // Verify the password
-        const isValidPassword = await verifyUserPassword(password, passwordHash);
-        if (!isValidPassword) {
-            res.status(401).json({ error: 'Invalid password provided.' });
-            return;
-        }
-
-        // Decrypt the data
+        // Decrypt the data first
         const decryptedText = await decryptWithAppSecret(encryptedData);
 
         // Try to parse as JSON, fallback to plain text
@@ -129,7 +122,27 @@ export default async function handler(req, res) {
             decryptedData = decryptedText;
         }
 
-        res.status(200).json({ data: decryptedData });
+        // Check if the decrypted data contains a password hash
+        if (decryptedData && typeof decryptedData === 'object' && decryptedData.passwordHash) {
+            // If password hash exists, verify the password
+            if (!password) {
+                res.status(401).json({ error: 'Password is required for this encrypted file.' });
+                return;
+            }
+
+            const isValidPassword = await verifyUserPassword(password, decryptedData.passwordHash);
+            if (!isValidPassword) {
+                res.status(401).json({ error: 'Invalid password provided.' });
+                return;
+            }
+
+            // Remove the password hash from the data before returning it
+            const { passwordHash, ...dataWithoutPassword } = decryptedData;
+            res.status(200).json({ data: dataWithoutPassword });
+        } else {
+            // No password protection, return data as is
+            res.status(200).json({ data: decryptedData });
+        }
     } catch (error) {
         console.error('Decryption error:', error);
         res.status(500).json({ error: 'Decryption failed. Invalid data or corrupted file.' });

@@ -106,20 +106,23 @@ export default async function handler(req, res) {
             return;
         }
 
-        // Convert data to JSON string if it's an object
-        const dataToEncrypt = typeof data === 'string' ? data : JSON.stringify(data);
+        // Parse data if it's a string, otherwise use as object
+        let jsonData = typeof data === 'string' ? JSON.parse(data) : data;
 
-        // Encrypt the data
-        const encryptedPayload = await encryptWithAppSecret(dataToEncrypt);
-
-        // If password is provided, add password hash to the response
-        let result = { encrypted: encryptedPayload };
+        // If password is provided, add password hash to the JSON data before encryption
         if (password) {
             const passwordHash = await hashUserPassword(password);
-            result.passwordHash = passwordHash;
+            jsonData = { ...jsonData, passwordHash };
         }
 
-        res.status(200).json(result);
+        // Convert modified data to string for encryption
+        const dataToEncrypt = JSON.stringify(jsonData);
+
+        // Encrypt the data (now including password hash if provided)
+        const encryptedPayload = await encryptWithAppSecret(dataToEncrypt);
+
+        // Return the encrypted payload (password hash is now encrypted within the data)
+        res.status(200).json({ encrypted: encryptedPayload });
     } catch (error) {
         console.error('Encryption error:', error);
         res.status(500).json({ error: 'Encryption failed. Please try again.' });

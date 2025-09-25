@@ -9,7 +9,7 @@ import LocationMap, { LocationMapRef } from './components/LocationMap';
 import LocationMapModal from './components/LocationMapModal';
 import JsonOutput from './components/JsonOutput';
 import DecryptModal from './components/DecryptModal';
-import { decryptWithAppSecret, verifyUserPassword, EncryptedData } from './services/cryptoService';
+import { decryptWithAppSecret, EncryptedData } from './services/cryptoService';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, DragMoveEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
@@ -114,8 +114,7 @@ const App: React.FC = () => {
       const fileContent = await fileToDecrypt.text();
       const encryptedFileData = JSON.parse(fileContent);
 
-      // Extract password hash if it exists
-      const passwordHash = encryptedFileData.passwordHash;
+      // Extract encrypted payload
       const encryptedPayload: EncryptedData = {
         salt: encryptedFileData.salt,
         iv: encryptedFileData.iv,
@@ -126,34 +125,23 @@ const App: React.FC = () => {
         throw new Error("Invalid encrypted file format.");
       }
 
-      // Make API call to decrypt data
-      const response = await fetch('/api/decrypt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          encryptedData: encryptedPayload,
-          password: password || undefined,
-          passwordHash: passwordHash || undefined
-        }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("Invalid password provided.");
-        }
-        throw new Error(`Decryption failed: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      const loadedData = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
+      // Use the updated decryptWithAppSecret method that handles password verification internally
+      const decryptedText = await decryptWithAppSecret(encryptedPayload, password);
+      const loadedData = JSON.parse(decryptedText);
 
       loadDataIntoState(loadedData);
       setFileToDecrypt(null); // Success, close modal
-    } catch (err) {
+    } catch (err: any) {
       console.error("Decryption or loading failed:", err);
-      setDecryptionError("Decryption failed. Invalid password or corrupted file.");
+      
+      // Handle specific error messages
+      if (err.message.includes('Invalid password')) {
+        setDecryptionError("Invalid password provided.");
+      } else if (err.message.includes('Password is required')) {
+        setDecryptionError("This file is password-protected. Please enter the correct password.");
+      } else {
+        setDecryptionError("Decryption failed. Invalid password or corrupted file.");
+      }
     } finally {
       setIsDecrypting(false);
     }
