@@ -5,10 +5,8 @@ export interface EncryptedData {
     ciphertext: string; // base64
 }
 
-// API base URL - adjust for your deployment
-const API_BASE = process.env.NODE_ENV === 'production'
-    ? 'https://custom-board-data-generator-izhdeyaa7-ken-mros-projects.vercel.app/api'  // Update with your actual domain
-    : '/api';
+// API base URL - use relative path for both dev and production
+const API_BASE = '/api';
 
 /**
  * Encrypts data using server-side encryption via Vercel Functions.
@@ -51,6 +49,9 @@ export const encryptWithAppSecret = async (plainText: string, password?: string)
  */
 export const decryptWithAppSecret = async (encryptedPayload: EncryptedData, password?: string): Promise<string> => {
     try {
+        console.log('Attempting decryption with API_BASE:', API_BASE);
+        console.log('Encrypted payload keys:', Object.keys(encryptedPayload));
+        
         const response = await fetch(`${API_BASE}/decrypt`, {
             method: 'POST',
             headers: {
@@ -62,14 +63,22 @@ export const decryptWithAppSecret = async (encryptedPayload: EncryptedData, pass
             }),
         });
 
+        console.log('Decrypt response status:', response.status);
+        console.log('Decrypt response statusText:', response.statusText);
+
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Decrypt API error response:', errorText);
+            
             if (response.status === 401) {
                 throw new Error('Invalid password provided.');
             }
-            throw new Error(`Decryption failed: ${response.statusText}`);
+            throw new Error(`Decryption failed: ${response.statusText} - ${errorText}`);
         }
 
         const result = await response.json();
+        console.log('Decrypt successful, data type:', typeof result.data);
+        
         return typeof result.data === 'string' ? result.data : JSON.stringify(result.data);
     } catch (error) {
         console.error('Decryption error:', error);
