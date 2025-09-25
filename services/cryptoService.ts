@@ -7,7 +7,7 @@ export interface EncryptedData {
 
 // API base URL - adjust for your deployment
 const API_BASE = process.env.NODE_ENV === 'production'
-    ? 'https:/https://custom-board-data-generator-izhdeyaa7-ken-mros-projects.vercel.app/api'  // Update with your actual domain
+    ? 'https://custom-board-data-generator-izhdeyaa7-ken-mros-projects.vercel.app/api'  // Update with your actual domain
     : '/api';
 
 /**
