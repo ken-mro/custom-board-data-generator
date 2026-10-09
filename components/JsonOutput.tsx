@@ -139,7 +139,7 @@ const JsonOutput: React.FC<{ data: CustomBoardData }> = ({ data }) => {
         ciphertext: encryptedPayload.ciphertext
       };
 
-      const blob = new Blob([JSON.stringify(encryptedFileData, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(encryptedFileData, null, 2)], { type: 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
