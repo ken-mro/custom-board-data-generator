@@ -95,7 +95,7 @@ const generateImageUrl = (template: string, location: Location): string | null =
 
     for (const placeholder of placeholders) {
       const key = placeholder.substring(1, placeholder.length - 1);
-      const value = location[key];
+      const value = location[key as keyof Location];
 
       // If a value for a placeholder is missing, we can't form a valid URL.
       if (value === null || value === undefined || String(value) === '') {
